@@ -1,47 +1,48 @@
 package com.example.demo.controller;
 
 
-import com.example.demo.model.Person;
+import com.example.demo.dto.PersonRequestDto;
+import com.example.demo.dto.PersonResponseDto;
 import com.example.demo.service.PersonService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/people")
+@RequiredArgsConstructor
 public class PersonController {
-    private final PersonService service;
-
-    public PersonController(PersonService service) {
-        this.service = service;
-    }
+    private final PersonService personService;
 
     @GetMapping
-    public List<Person> getAll() {
-        return service.getAll();
+    public ResponseEntity<Page<PersonResponseDto>> getAll(Pageable pageable) {
+        return ResponseEntity.ok(personService.getAll(pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Person> getById(@PathVariable String id) {
-        Person p = service.getById(id);
-        return p == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(p);
+    public ResponseEntity<PersonResponseDto> getById(@PathVariable String id) {
+        return ResponseEntity.ok(personService.getById(id));
     }
 
     @PostMapping
-    public Person create(@RequestBody Person p) {
-        return service.create(p);
+    public ResponseEntity<PersonResponseDto> create(@Valid @RequestBody PersonRequestDto request) {
+        PersonResponseDto response = personService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Person> update(@PathVariable String id, @RequestBody Person p) {
-        Person updated = service.update(id, p);
-        return updated == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(updated);
+    public ResponseEntity<PersonResponseDto> update(@PathVariable String id,@Valid @RequestBody PersonRequestDto request) {
+        return ResponseEntity.ok(personService.update(id,request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable String id) {
-        service.delete(id);
+        personService.delete(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -19,4 +19,10 @@ public class Person {
     private String lastName;
     private int age;
     private String email;
+
+    private Gender gender;
+    private String education;
+    private double salary;
+    private MaritalStatus maritalStatus;
 }
+
